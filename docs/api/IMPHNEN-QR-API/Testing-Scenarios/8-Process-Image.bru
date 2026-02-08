@@ -1,0 +1,52 @@
+meta {
+  name: 8. Process Image
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/api/v1/campaigns/process-image
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:multipart-form {
+  image: @file()
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    console.log("✅ Step 8: Image processed successfully with QR overlay");
+    const contentType = res.getHeader("content-type");
+    console.log("   Content-Type: " + contentType);
+  }
+}
+
+tests {
+  test("Image processed successfully", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response is a PNG image", function() {
+    const contentType = res.getHeader("content-type");
+    expect(contentType).to.include("image/png");
+  });
+}
+
+docs {
+  # Scenario Step 8: Process Image
+  
+  Upload an image to get it back with the active campaign's QR code overlaid.
+  
+  **Prerequisites**: Must have an active campaign (Step 6) and be authenticated
+  **How to use**: Select a PNG or JPEG image file in the `image` field before sending
+  
+  ## Notes
+  - The response is a binary PNG image
+  - QR code is placed at bottom-right corner with 10px padding
+  - Save the response to see the result: use `--output result.png` with curl
+}

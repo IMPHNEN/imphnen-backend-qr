@@ -2,6 +2,42 @@
 
 All notable changes to the API documentation will be documented in this file.
 
+## [1.1.0] - 2026-02-09
+
+### ✨ QR Campaign Overlay
+
+New campaign management and QR code overlay feature.
+
+### ✨ Added
+
+#### Campaign Endpoints
+- **Create Campaign** (Admin) - Create QR campaign with name + URL
+- **List All Campaigns** (Admin) - View all campaigns
+- **Activate Campaign** (Admin) - Set active campaign
+- **Process Image** (All users) - Upload image, get QR overlay PNG
+
+#### Testing Scenarios
+- Campaign Flow (Steps 5-8): Login Admin → Create Campaign → List → Process Image
+- Error - Campaign Forbidden: Non-admin creating campaign
+- Error - No Active Campaign: Processing image without active campaign
+- Error - Missing Image: Processing without image upload
+
+#### Features
+- 🎯 Auto-seeder creates demo admin + user accounts on startup
+- 📷 QR code overlay on uploaded images (bottom-right, ~1/5 size)
+- 💾 In-memory QR cache for active campaign
+- 🔒 Partial unique index ensures max 1 active campaign
+- 🧪 Campaign ID auto-saved to environment variables
+
+#### Documentation
+- Bruno endpoint docs for all 4 campaign endpoints
+- Campaigns-Admin folder with 3 admin endpoints
+- Campaigns-User folder with process-image endpoint
+- Updated QUICK-START, README, OVERVIEW with campaign info
+- Updated all environments with campaignId variable
+
+---
+
 ## [1.0.0] - 2026-02-09
 
 ### 🎉 Initial Release
@@ -94,6 +130,14 @@ docs/api/
     │   ├── folder.bru
     │   ├── List-All-Users.bru
     │   └── Update-User-Role.bru
+    ├── Campaigns-Admin/
+    │   ├── folder.bru
+    │   ├── Create-Campaign.bru
+    │   ├── List-All-Campaigns.bru
+    │   └── Activate-Campaign.bru
+    ├── Campaigns-User/
+    │   ├── folder.bru
+    │   └── Process-Image.bru
     └── Testing-Scenarios/
         ├── folder.bru
         ├── README.bru
@@ -109,12 +153,12 @@ docs/api/
 
 ### 📊 Statistics
 
-- **Total Endpoints**: 10
-- **Total Test Requests**: 14 (including scenarios)
+- **Total Endpoints**: 14
+- **Total Test Requests**: 21 (including scenarios)
 - **Total Environments**: 3
-- **Test Scenarios**: 4 happy path + 4 error cases
+- **Test Scenarios**: 8 happy path/campaign flow + 7 error cases
 - **Documentation Files**: 5 markdown files
-- **Lines of Documentation**: ~2000+ lines
+- **Lines of Documentation**: ~3000+ lines
 
 ### 🔒 Security
 
@@ -158,9 +202,7 @@ Each endpoint has tests for:
 
 ## Future Enhancements
 
-### Planned for v1.1.0
-- [ ] QR Code generation endpoints
-- [ ] QR Code management endpoints
+<!-- ### Planned for v1.2.0
 - [ ] Event management endpoints
 - [ ] Analytics endpoints
 - [ ] Webhook endpoints
@@ -178,7 +220,7 @@ Each endpoint has tests for:
 - [ ] Load testing scenarios
 - [ ] CI/CD integration examples
 - [ ] Mock server configuration
-- [ ] Contract testing
+- [ ] Contract testing -->
 
 ---
 

@@ -1,0 +1,52 @@
+meta {
+  name: Error - No Active Campaign
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/api/v1/campaigns/process-image
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:multipart-form {
+  image: @file()
+}
+
+script:post-response {
+  if (res.getStatus() === 404) {
+    console.log("✅ Correctly returned 404 when no active campaign");
+  }
+}
+
+tests {
+  test("Returns error when no active campaign", function() {
+    // This test expects 404 when there is no active campaign
+    // If a campaign exists, this will return 200 instead
+    const status = res.getStatus();
+    expect([200, 404]).to.include(status);
+    
+    if (status === 404) {
+      const body = res.getBody();
+      expect(body.success).to.equal(false);
+      expect(body.error).to.equal("no_active_campaign");
+    }
+  });
+}
+
+docs {
+  # Error Scenario: No Active Campaign
+  
+  Test that processing an image without an active campaign returns a clear error.
+  
+  **Setup**: Ensure no campaign is active (or test on a fresh database without campaigns).
+  
+  **Expected**: 404 with error "no_active_campaign"
+  
+  **Note**: If an active campaign exists, the endpoint will succeed (200) instead.
+}

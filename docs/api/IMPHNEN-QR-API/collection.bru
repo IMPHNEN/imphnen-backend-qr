@@ -8,7 +8,7 @@ scripts {
     
     // Check if token exists for protected endpoints
     const url = req.getUrl();
-    if (url.includes('/users') && !url.includes('/auth')) {
+    if ((url.includes('/users') || url.includes('/campaigns')) && !url.includes('/auth')) {
       const token = bru.getVar('accessToken');
       if (!token) {
         console.warn('⚠️ Warning: No access token found. Login first!');
@@ -63,13 +63,14 @@ scripts {
 docs {
   # IMPHNEN QR API Collection
   
-  Complete API testing collection for IMPHNEN QR Backend.
+  Complete API testing collection for IMPHNEN QR Campaign Backend.
   
   ## Features
   - ✅ Auto-save tokens
   - 🧪 Automated tests
   - 📖 Complete documentation
   - 🔄 Environment switching
+  - 🎯 QR Campaign management & image processing
   
   ## Quick Links
   - [Quick Start](QUICK-START.md)

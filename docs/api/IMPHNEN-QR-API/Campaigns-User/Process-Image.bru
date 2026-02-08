@@ -1,0 +1,92 @@
+meta {
+  name: Process Image
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/v1/campaigns/process-image
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:multipart-form {
+  image: @file()
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response content type is image/png", function() {
+    const contentType = res.getHeader("content-type");
+    expect(contentType).to.include("image/png");
+  });
+}
+
+docs {
+  # Process Image (All Authenticated Users)
+  
+  Upload an image and receive it back with the active campaign's QR code overlaid at the bottom-right corner.
+  
+  ## Authentication
+  Requires Bearer token in Authorization header. Any role (user or admin) can access.
+  
+  ## Request
+  - Method: `POST`
+  - Content-Type: `multipart/form-data`
+  - Field: `image` — PNG or JPEG file
+  
+  ## Success Response (200)
+  - Content-Type: `image/png`
+  - Body: Binary PNG data with QR overlay
+  
+  ## Error Responses
+  
+  ### No Active Campaign (404)
+  ```json
+  {
+    "success": false,
+    "message": "no active campaign",
+    "error": "no_active_campaign"
+  }
+  ```
+  
+  ### Invalid Image Format (400)
+  ```json
+  {
+    "success": false,
+    "message": "invalid image format, only PNG and JPEG are supported",
+    "error": "invalid_image"
+  }
+  ```
+  
+  ### Missing Image File (400)
+  ```json
+  {
+    "success": false,
+    "message": "image file is required",
+    "error": "validation_error"
+  }
+  ```
+  
+  ## Notes
+  - Supported formats: PNG and JPEG
+  - QR code is placed at bottom-right corner with 10px padding
+  - QR size is ~1/5 of the smallest image dimension (minimum 100px)
+  - Response is always PNG regardless of input format
+  - QR data is cached in memory for performance
+  
+  ## Example (curl)
+  ```bash
+  curl -X POST http://localhost:8080/api/v1/campaigns/process-image \
+    -H "Authorization: Bearer <token>" \
+    -F "image=@photo.jpg" \
+    --output result.png
+  ```
+}

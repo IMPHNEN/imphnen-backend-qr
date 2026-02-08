@@ -1,0 +1,73 @@
+meta {
+  name: Activate Campaign
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/api/v1/campaigns/{{campaignId}}/activate
+  body: none
+  auth: bearer
+}
+
+params:path {
+  campaignId: 
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response has success structure", function() {
+    const body = res.getBody();
+    expect(body).to.have.property("success", true);
+    expect(body).to.have.property("message");
+  });
+  
+  test("Message confirms activation", function() {
+    const message = res.getBody().message;
+    expect(message).to.include("activated");
+  });
+}
+
+docs {
+  # Activate Campaign (Admin Only)
+  
+  Set a specific campaign as the active campaign. This deactivates any previously active campaign.
+  
+  ## Authentication
+  Requires Bearer token in Authorization header.
+  
+  ## Authorization
+  Only users with 'admin' role can access this endpoint.
+  
+  ## Path Parameters
+  - `id` (string, required): UUID of the campaign to activate
+  
+  ## Success Response (200)
+  ```json
+  {
+    "success": true,
+    "message": "campaign activated"
+  }
+  ```
+  
+  ## Error Response (404)
+  ```json
+  {
+    "success": false,
+    "message": "campaign not found",
+    "error": "campaign_not_found"
+  }
+  ```
+  
+  ## Notes
+  - Only 1 campaign can be active at a time
+  - Activating a campaign deactivates all others in a single transaction
+  - The active campaign's QR code is used for image processing
+}

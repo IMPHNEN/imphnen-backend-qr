@@ -1,0 +1,62 @@
+meta {
+  name: 7. List Campaigns
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/v1/campaigns
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    console.log("✅ Step 7: Campaigns listed successfully");
+    const campaigns = res.getBody().data;
+    if (campaigns) {
+      console.log("   Total campaigns: " + campaigns.length);
+      const active = campaigns.filter(c => c.is_active);
+      console.log("   Active campaigns: " + active.length);
+    }
+  }
+}
+
+tests {
+  test("Campaigns listed successfully", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response contains campaigns array", function() {
+    const data = res.getBody().data;
+    expect(data).to.be.an("array");
+    expect(data.length).to.be.greaterThan(0);
+  });
+  
+  test("At most one campaign is active", function() {
+    const campaigns = res.getBody().data;
+    const activeCount = campaigns.filter(c => c.is_active === true).length;
+    expect(activeCount).to.be.at.most(1);
+  });
+  
+  test("Created campaign is in the list", function() {
+    const campaigns = res.getBody().data;
+    const campaignId = bru.getVar("campaignId");
+    const found = campaigns.find(c => c.id === campaignId);
+    expect(found).to.not.be.undefined;
+    expect(found.is_active).to.equal(true);
+  });
+}
+
+docs {
+  # Scenario Step 7: List Campaigns
+  
+  Verify the created campaign appears in the list and is active.
+  
+  **Prerequisites**: Must have created a campaign (Step 6)
+  **Next Step**: 8. Process Image
+}

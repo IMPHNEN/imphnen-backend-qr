@@ -1,0 +1,60 @@
+meta {
+  name: Error - Campaign Forbidden
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/api/v1/campaigns
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "name": "Should Fail",
+    "url": "https://example.com"
+  }
+}
+
+script:pre-request {
+  // First login as regular user to get a non-admin token
+  console.log("⚠️  This test requires logging in as a regular user first");
+  console.log("   Run Login-User with user@imphnen.id / user123 before this test");
+}
+
+script:post-response {
+  if (res.getStatus() === 403) {
+    console.log("✅ Correctly returned 403 for non-admin user");
+  }
+}
+
+tests {
+  test("Returns 403 for non-admin user", function() {
+    expect(res.getStatus()).to.equal(403);
+  });
+  
+  test("Response has error structure", function() {
+    const body = res.getBody();
+    expect(body.success).to.equal(false);
+    expect(body).to.have.property("error");
+  });
+}
+
+docs {
+  # Error Scenario: Campaign Creation Forbidden
+  
+  Test that regular users cannot create campaigns (admin-only endpoint).
+  
+  **Setup**: Login as a regular user (user@imphnen.id / user123) before running this test.
+  
+  **Expected**: 403 Forbidden
+}

@@ -1,0 +1,34 @@
+meta {
+  name: Campaigns-User
+  seq: 6
+}
+
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+docs {
+  # Campaign User Endpoints (Protected)
+  
+  This folder contains campaign endpoints accessible to all authenticated users (any role).
+  
+  **Authentication Required**: Bearer token in Authorization header
+  
+  ## Endpoints:
+  - **Process Image**: Upload an image and get it back with QR overlay
+  
+  ## How It Works:
+  1. Ensure there is an active campaign (admin must create one first)
+  2. Upload a PNG or JPEG image via multipart form
+  3. The system overlays the active campaign's QR code at the bottom-right corner
+  4. Response is a binary PNG image with the QR overlay
+  
+  ## Usage:
+  1. Login with any account (admin or user)
+  2. The access token will be automatically saved
+  3. Upload an image file to process
+}

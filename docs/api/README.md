@@ -118,6 +118,16 @@ Memerlukan authentication + role admin:
 |--------|----------|-------------|
 | GET | `/api/v1/users` | List semua users |
 | PUT | `/api/v1/users/:id/role` | Update user role |
+| POST | `/api/v1/campaigns` | Create QR campaign |
+| GET | `/api/v1/campaigns` | List semua campaigns |
+| PUT | `/api/v1/campaigns/:id/activate` | Set active campaign |
+
+### Campaign Endpoints (Campaigns-User)
+Memerlukan authentication (semua role):
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/v1/campaigns/process-image` | Upload image, get QR overlay PNG |
 
 ## 🔐 Environment Variables
 
@@ -156,6 +166,14 @@ if (res.getStatus() === 200 || res.getStatus() === 201) {
 1. Login as admin → Auto-save token
 2. List All Users → Uses saved token
 3. Update User Role → Uses saved token
+```
+
+### Campaign Flow
+```
+1. Login as admin → Auto-save token
+2. Create Campaign → Generate QR, auto-activate
+3. List Campaigns → Verify active campaign
+4. Process Image → Upload image, get QR overlay
 ```
 
 ### Token Refresh Flow
@@ -224,7 +242,8 @@ Semua endpoint mengikuti format response yang konsisten:
 ### Problem: "403 Forbidden" pada admin endpoints  
 **Solution**:
 - Pastikan user memiliki role 'admin'
-- Update role melalui database jika perlu:
+- Gunakan akun demo admin: `admin@imphnen.dev` / `admin123` (auto-seeded)
+- Atau update role melalui database jika perlu:
 ```sql
 UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 ```

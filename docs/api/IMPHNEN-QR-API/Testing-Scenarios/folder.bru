@@ -22,7 +22,10 @@ docs {
   ### 4. Token Lifecycle
   Testing token generation, usage, and refresh.
   
-  ### 5. Error Scenarios
+  ### 5. Campaign Flow (Steps 5-8)
+  Admin campaign creation and image processing workflow.
+  
+  ### 6. Error Scenarios
   Testing various error conditions and edge cases.
   
   ## How to Use:
@@ -54,6 +57,15 @@ docs {
   
   **Run in sequence** to test complete user journey.
   
+  #### Campaign Flow (Steps 5-8)
+  Complete campaign workflow:
+  5. Login as Admin
+  6. Create Campaign
+  7. List Campaigns
+  8. Process Image with QR Overlay
+  
+  **Run in sequence** to test campaign management and image processing.
+  
   ### Error Scenarios
   
   #### Individual Error Tests
@@ -61,6 +73,9 @@ docs {
   - **Error - Duplicate Email**: Email already exists
   - **Error - Missing Authorization**: No token provided
   - **Error - Invalid Request Body**: Missing required fields
+  - **Error - Campaign Forbidden**: Non-admin creating campaign
+  - **Error - No Active Campaign**: Processing image without active campaign
+  - **Error - Missing Image**: Processing without uploading image
   
   **Can run independently** to test error handling.
   

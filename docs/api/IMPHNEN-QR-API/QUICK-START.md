@@ -51,9 +51,15 @@ Make sure your backend server is running at `http://localhost:8080`
 
 ### Testing as Admin
 1. ✅ Health Check
-2. 🔐 Login as admin
+2. 🔐 Login as admin (`admin@imphnen.dev` / `admin123`)
 3. 📋 List All Users
 4. ⚙️ Update User Role
+
+### Testing Campaign Flow
+1. 🔐 Login as admin
+2. 🎯 Create Campaign (name + URL)
+3. 📋 List Campaigns (verify it's active)
+4. 🖼️ Process Image (upload image, get QR overlay)
 
 ### Testing Google OAuth
 1. ✅ Health Check
@@ -76,6 +82,11 @@ After successful login/register, the access token is **automatically saved** to 
 - 🟢 **Public endpoints**: No token needed
 - 🟡 **Protected endpoints**: Auto-use saved token
 - 🔴 **Admin endpoints**: Need admin role + token
+- 🎯 **Campaign process**: Any role + token
+
+### Demo Accounts (Auto-seeded)
+- **Admin**: `admin@imphnen.dev` / `admin123`
+- **User**: `user@imphnen.dev` / `user123`
 
 ### Request Body
 All request bodies are pre-filled with examples. Just update the values before sending.

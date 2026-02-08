@@ -21,13 +21,13 @@ func Run(db *sql.DB) {
 
 	users := []seedUser{
 		{
-			Email:    "admin@imphnen.id",
+			Email:    "admin@imphnen.dev",
 			Password: "admin123",
 			Name:     "Admin Demo",
 			Role:     "admin",
 		},
 		{
-			Email:    "user@imphnen.id",
+			Email:    "user@imphnen.dev",
 			Password: "user123",
 			Name:     "User Demo",
 			Role:     "user",

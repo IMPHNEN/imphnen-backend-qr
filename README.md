@@ -1,6 +1,6 @@
 # IMPHNEN Backend QR Code Generator
 
-SSO service menggunakan Go + Echo dengan JWT auth, Google OAuth, dan RBAC.
+QR code overlay generator untuk campaign. Dengan fitur SSO dibangun menggunakan Go + Echo dengan JWT auth, Google OAuth, dan RBAC.
 
 ## Tech Stack
 
@@ -10,6 +10,8 @@ SSO service menggunakan Go + Echo dengan JWT auth, Google OAuth, dan RBAC.
 - **bcrypt** — Password hashing
 - **Viper** — Environment config (prioritas env OS, fallback `.env`)
 - **Google OAuth2** — Social login
+- **go-qrcode** — QR code generation
+- **image/draw** — Image overlay processing
 
 ## Quick Start
 
@@ -48,6 +50,19 @@ Ini akan menjalankan app di `localhost:8080` dan Postgres di `localhost:5432`.
    ```bash
    go run cmd/server/main.go
    ```
+   Server akan otomatis menjalankan seeder saat start (membuat akun demo admin & user jika belum ada).
+
+4. (Opsional) Jalankan seeder secara manual:
+   ```bash
+   go run cmd/seeder/main.go
+   ```
+
+### Demo Accounts (Auto-seeded)
+
+| Email | Password | Role |
+|---|---|---|
+| `admin@imphnen.dev` | `admin123` | admin |
+| `user@imphnen.dev` | `user123` | user |
 
 ## API Endpoints
 
@@ -70,11 +85,46 @@ Ini akan menjalankan app di `localhost:8080` dan Postgres di `localhost:5432`.
 | GET    | `/api/v1/users`            | Admin        | List all users      |
 | PUT    | `/api/v1/users/:id/role`   | Admin        | Update user role    |
 
+### QR Campaigns (Protected — Bearer Token)
+
+| Method | Path                                    | Role         | Description                       |
+|--------|-----------------------------------------|--------------|-----------------------------------|
+| POST   | `/api/v1/campaigns`                     | Admin        | Create campaign (auto-activates)  |
+| GET    | `/api/v1/campaigns`                     | Admin        | List all campaigns                |
+| PUT    | `/api/v1/campaigns/:id/activate`        | Admin        | Set campaign as active            |
+| POST   | `/api/v1/campaigns/process-image`       | User, Admin  | Upload image, get QR overlay PNG  |
+
 ### Health Check
 
 ```
 GET /health → {"status": "ok"}
 ```
+
+## QR Campaign Overlay
+
+### Flow
+1. **Admin** membuat campaign via `POST /api/v1/campaigns` dengan `name` dan `url`
+2. System generate QR code PNG (256x256) dari URL campaign
+3. Campaign baru otomatis menjadi active (hanya 1 active pada satu waktu)
+4. **User** upload image via `POST /api/v1/campaigns/process-image` (multipart, field: `image`)
+5. System merge QR code ke bottom-right corner dari image
+6. Response berupa binary PNG
+
+### Create Campaign Request
+```json
+{
+  "name": "My Campaign",
+  "url": "https://example.com/promo"
+}
+```
+
+### Process Image Request
+```bash
+curl -X POST http://localhost:8080/api/v1/campaigns/process-image \
+  -H "Authorization: Bearer <token>" \
+  -F "image=@photo.jpg"
+```
+Response: binary `image/png` dengan QR overlay di bottom-right.
 
 ## API Response Format
 
@@ -99,13 +149,15 @@ GET /health → {"status": "ok"}
 ## Project Structure
 
 ```
-cmd/server/main.go          — Entry point
+cmd/server/main.go          — Entry point + auto-seeder
+cmd/seeder/main.go          — Standalone seeder CLI
 internal/config/             — Environment config (Viper)
 internal/domain/             — Entities & interfaces
 internal/handler/            — HTTP handlers
 internal/middleware/          — JWT & RBAC middleware
 internal/repository/         — Database operations (raw SQL)
-internal/service/            — Business logic
+internal/service/            — Business logic + QR generation + image processing
+internal/seeder/             — Database seeder (demo accounts)
 internal/utils/              — JWT, password, response helpers
 pkg/database/                — Postgres connection
 db/migrations/               — SQL migration files

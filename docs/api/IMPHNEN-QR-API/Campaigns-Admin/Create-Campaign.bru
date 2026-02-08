@@ -1,0 +1,110 @@
+meta {
+  name: Create Campaign
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/v1/campaigns
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "name": "IMPHNEN Promo Campaign",
+    "url": "https://imphnen.dev/promo"
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 201) {
+    const data = res.getBody();
+    if (data.data && data.data.id) {
+      bru.setEnvVar("campaignId", data.data.id);
+      console.log("✅ Campaign created, ID saved: " + data.data.id);
+    }
+  }
+}
+
+tests {
+  test("Status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  
+  test("Response has success structure", function() {
+    const body = res.getBody();
+    expect(body).to.have.property("success", true);
+    expect(body).to.have.property("message");
+    expect(body).to.have.property("data");
+  });
+  
+  test("Campaign data has required fields", function() {
+    const campaign = res.getBody().data;
+    expect(campaign).to.have.property("id");
+    expect(campaign).to.have.property("name");
+    expect(campaign).to.have.property("url");
+    expect(campaign).to.have.property("is_active", true);
+    expect(campaign).to.have.property("created_by");
+    expect(campaign).to.have.property("expires_at");
+  });
+  
+  test("Campaign ID is saved", function() {
+    expect(bru.getVar("campaignId")).to.be.a("string");
+  });
+}
+
+docs {
+  # Create Campaign (Admin Only)
+  
+  Create a new QR campaign. The system will generate a QR code PNG from the provided URL.
+  Newly created campaigns are automatically set as active (deactivating any previous active campaign).
+  
+  ## Authentication
+  Requires Bearer token in Authorization header.
+  
+  ## Authorization
+  Only users with 'admin' role can access this endpoint.
+  
+  ## Request Body
+  ```json
+  {
+    "name": "Campaign Name",
+    "url": "https://example.com/target"
+  }
+  ```
+  
+  - `name` (string, required): Campaign display name
+  - `url` (string, required): Target URL encoded in the QR code
+  
+  ## Success Response (201)
+  ```json
+  {
+    "success": true,
+    "message": "campaign created",
+    "data": {
+      "id": "uuid",
+      "name": "Campaign Name",
+      "url": "https://example.com/target",
+      "is_active": true,
+      "created_by": "admin-uuid",
+      "expires_at": "2026-02-16T...",
+      "created_at": "2026-02-09T...",
+      "updated_at": "2026-02-09T..."
+    }
+  }
+  ```
+  
+  ## Notes
+  - QR code is generated as 256x256 PNG with medium error correction
+  - Campaign expires 7 days after creation by default
+  - Only 1 campaign can be active at a time (enforced at DB level)
+}

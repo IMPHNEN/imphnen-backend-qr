@@ -1,0 +1,53 @@
+meta {
+  name: 5. Login Admin
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/v1/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "admin@imphnen.id",
+    "password": "admin123"
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    const data = res.getBody();
+    if (data.data && data.data.tokens) {
+      bru.setEnvVar("accessToken", data.data.tokens.access_token);
+      bru.setEnvVar("refreshToken", data.data.tokens.refresh_token);
+      bru.setEnvVar("adminUserId", data.data.user.id);
+    }
+    console.log("✅ Step 5: Admin logged in successfully");
+  }
+}
+
+tests {
+  test("Admin login successful", function() {
+    expect(res.getStatus()).to.equal(200);
+    const data = res.getBody().data;
+    expect(data.user.email).to.equal("admin@imphnen.id");
+    expect(data.user.role).to.equal("admin");
+    expect(data.tokens.access_token).to.be.a("string");
+  });
+}
+
+docs {
+  # Scenario Step 5: Login as Admin
+  
+  Login with the auto-seeded admin account to test campaign management.
+  
+  **Prerequisites**: Server must have run seeder (auto on startup)
+  **Next Step**: 6. Create Campaign
+}
