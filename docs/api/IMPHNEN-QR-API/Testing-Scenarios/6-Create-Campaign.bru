@@ -21,7 +21,7 @@ auth:bearer {
 body:json {
   {
     "name": "Test Scenario Campaign",
-    "url": "https://imphnen.id/test-scenario"
+    "url": "https://imphnen.dev/test-scenario"
   }
 }
 
@@ -48,13 +48,13 @@ tests {
   test("Campaign has correct data", function() {
     const campaign = res.getBody().data;
     expect(campaign.name).to.equal("Test Scenario Campaign");
-    expect(campaign.url).to.equal("https://imphnen.id/test-scenario");
+    expect(campaign.url).to.equal("https://imphnen.dev/test-scenario");
     expect(campaign).to.have.property("id");
     expect(campaign).to.have.property("expires_at");
   });
   
   test("Campaign ID is saved", function() {
-    expect(bru.getVar("campaignId")).to.be.a("string");
+    expect(bru.getEnvVar("campaignId")).to.be.a("string");
   });
 }
 

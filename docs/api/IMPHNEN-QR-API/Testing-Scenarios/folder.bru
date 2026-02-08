@@ -28,6 +28,10 @@ docs {
   ### 6. Error Scenarios
   Testing various error conditions and edge cases.
   
+  ### 99. Cleanup Test Data
+  Removes all test campaigns and test users (preserves seeded accounts).
+  **Run this LAST** after all scenarios are complete.
+  
   ## How to Use:
   1. Open a scenario
   2. Run requests in sequence (top to bottom)
@@ -94,9 +98,10 @@ docs {
   - Variables preserved across requests
   
   ### After Scenario Completion
-  - Test data remains in database
+  - Run **99. Cleanup Test Data** to remove test data
   - Tokens remain in environment
-  - Safe to run other scenarios
+  - Seeded accounts (admin/user) are preserved
+  - Safe to run other scenarios after cleanup
   
   ## 🔧 Customization
   
@@ -149,7 +154,7 @@ docs {
   1. **Run scenarios in order** on first test
   2. **Check all test results** (green checkmarks)
   3. **Review console logs** for detailed feedback
-  4. **Clean up test data** periodically
+  4. **Run cleanup scenario** (step 99) after testing
   5. **Document custom scenarios** you create
   
   ---

@@ -109,3 +109,12 @@ func (r *userRepository) UpdateRole(id, role string) error {
 	)
 	return err
 }
+
+func (r *userRepository) Delete(id string) error {
+	if _, err := uuid.Parse(id); err != nil {
+		return err
+	}
+
+	_, err := r.db.Exec(`DELETE FROM users WHERE id = $1::uuid`, id)
+	return err
+}

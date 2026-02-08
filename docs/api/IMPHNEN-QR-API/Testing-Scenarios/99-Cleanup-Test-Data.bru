@@ -1,0 +1,96 @@
+meta {
+  name: 99. Cleanup Test Data
+  type: http
+  seq: 99
+}
+
+get {
+  url: {{baseUrl}}/health
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  const baseUrl = bru.getEnvVar('baseUrl');
+  
+  // Login as admin
+  const loginRes = await axios.post(baseUrl + '/api/v1/auth/login', {
+    email: 'admin@imphnen.dev',
+    password: 'admin123'
+  });
+  
+  if (!loginRes || !loginRes.data || !loginRes.data.data) {
+    console.log('❌ Failed to login as admin for cleanup');
+    return;
+  }
+  
+  const adminToken = loginRes.data.data.tokens.access_token;
+  const headers = { 'Authorization': 'Bearer ' + adminToken };
+  
+  let deletedCampaigns = 0;
+  let deletedUsers = 0;
+  
+  // 1. Delete all campaigns
+  try {
+    const campaignsRes = await axios.get(baseUrl + '/api/v1/campaigns', { headers });
+    const campaigns = (campaignsRes && campaignsRes.data && campaignsRes.data.data) ? campaignsRes.data.data : [];
+    
+    for (const campaign of campaigns) {
+      await axios.delete(baseUrl + '/api/v1/campaigns/' + campaign.id, { headers });
+      deletedCampaigns++;
+    }
+  } catch (e) {
+    console.log('⚠️  Campaign cleanup error: ' + e.message);
+  }
+  
+  // 2. Delete test users (not the seeded demo accounts)
+  try {
+    const usersRes = await axios.get(baseUrl + '/api/v1/users', { headers });
+    const users = (usersRes && usersRes.data && usersRes.data.data) ? usersRes.data.data : [];
+    
+    const protectedEmails = ['admin@imphnen.dev', 'user@imphnen.dev'];
+    
+    for (const user of users) {
+      if (!protectedEmails.includes(user.email)) {
+        await axios.delete(baseUrl + '/api/v1/users/' + user.id, { headers });
+        deletedUsers++;
+      }
+    }
+  } catch (e) {
+    console.log('⚠️  User cleanup error: ' + e.message);
+  }
+  
+  console.log('🧹 Cleanup complete:');
+  console.log('   Campaigns deleted: ' + deletedCampaigns);
+  console.log('   Test users deleted: ' + deletedUsers);
+  console.log('   Preserved: admin@imphnen.dev, user@imphnen.dev');
+}
+
+tests {
+  test("Server is healthy after cleanup", function() {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().status).to.equal("ok");
+  });
+}
+
+docs {
+  # Cleanup Test Data
+  
+  Removes all test data created during testing scenarios, preserving the seeded demo accounts.
+  
+  **Run this as the LAST step** after all test scenarios are complete.
+  
+  ## What gets cleaned up:
+  - ✅ All QR campaigns (created in scenarios 6+)
+  - ✅ Test users (e.g. scenario.user@test.com from step 1)
+  
+  ## What is preserved:
+  - 🔒 admin@imphnen.dev (seeded admin account)
+  - 🔒 user@imphnen.dev (seeded user account)
+  
+  ## How it works:
+  1. Logs in as admin
+  2. Lists and deletes all campaigns
+  3. Lists all users and deletes any that are NOT the seeded demo accounts
+  4. Hits /health as a final sanity check
+}

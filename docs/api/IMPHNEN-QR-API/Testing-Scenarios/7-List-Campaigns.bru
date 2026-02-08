@@ -45,7 +45,7 @@ tests {
   
   test("Created campaign is in the list", function() {
     const campaigns = res.getBody().data;
-    const campaignId = bru.getVar("campaignId");
+    const campaignId = bru.getEnvVar("campaignId");
     const found = campaigns.find(c => c.id === campaignId);
     expect(found).to.not.be.undefined;
     expect(found.is_active).to.equal(true);

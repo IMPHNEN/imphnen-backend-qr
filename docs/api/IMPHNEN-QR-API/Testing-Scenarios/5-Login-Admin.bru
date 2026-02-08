@@ -16,7 +16,7 @@ headers {
 
 body:json {
   {
-    "email": "admin@imphnen.id",
+    "email": "admin@imphnen.dev",
     "password": "admin123"
   }
 }
@@ -37,7 +37,7 @@ tests {
   test("Admin login successful", function() {
     expect(res.getStatus()).to.equal(200);
     const data = res.getBody().data;
-    expect(data.user.email).to.equal("admin@imphnen.id");
+    expect(data.user.email).to.equal("admin@imphnen.dev");
     expect(data.user.role).to.equal("admin");
     expect(data.tokens.access_token).to.be.a("string");
   });

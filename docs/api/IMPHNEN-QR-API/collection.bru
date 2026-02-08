@@ -9,7 +9,7 @@ scripts {
     // Check if token exists for protected endpoints
     const url = req.getUrl();
     if ((url.includes('/users') || url.includes('/campaigns')) && !url.includes('/auth')) {
-      const token = bru.getVar('accessToken');
+      const token = bru.getEnvVar('accessToken');
       if (!token) {
         console.warn('⚠️ Warning: No access token found. Login first!');
       }
@@ -36,7 +36,7 @@ scripts {
     if (url.includes('/auth/')) {
       const body = res.getBody();
       if (body.data && body.data.tokens && body.data.tokens.access_token) {
-        bru.setVar('accessToken', body.data.tokens.access_token);
+        bru.setEnvVar('accessToken', body.data.tokens.access_token);
         console.log('🔑 Access token saved');
       }
     }

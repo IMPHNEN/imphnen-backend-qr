@@ -71,6 +71,7 @@ func main() {
 	admin.Use(middleware.RBACMiddleware("admin"))
 	admin.GET("", userHandler.GetAllUsers)
 	admin.PUT("/:id/role", userHandler.UpdateUserRole)
+	admin.DELETE("/:id", userHandler.DeleteUser)
 
 	// Campaign routes (admin - JWT + RBAC)
 	campaigns := e.Group("/api/v1/campaigns")
@@ -81,6 +82,7 @@ func main() {
 	adminCampaigns.POST("", qrCampaignHandler.CreateCampaign)
 	adminCampaigns.GET("", qrCampaignHandler.GetAllCampaigns)
 	adminCampaigns.PUT("/:id/activate", qrCampaignHandler.SetActiveCampaign)
+	adminCampaigns.DELETE("/:id", qrCampaignHandler.DeleteCampaign)
 
 	// Campaign routes (user - JWT only, all roles)
 	campaigns.POST("/process-image", qrCampaignHandler.ProcessImage)

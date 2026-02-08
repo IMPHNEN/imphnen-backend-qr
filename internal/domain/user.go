@@ -22,4 +22,5 @@ type UserRepository interface {
 	FindAll() ([]User, error)
 	Update(user *User) error
 	UpdateRole(id, role string) error
+	Delete(id string) error
 }

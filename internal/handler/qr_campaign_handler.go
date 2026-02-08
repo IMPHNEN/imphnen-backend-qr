@@ -59,6 +59,20 @@ func (h *QRCampaignHandler) SetActiveCampaign(c echo.Context) error {
 	return utils.SuccessResponse(c, http.StatusOK, "campaign activated", nil)
 }
 
+func (h *QRCampaignHandler) DeleteCampaign(c echo.Context) error {
+	id := c.Param("id")
+
+	if err := h.campaignService.DeleteCampaign(id); err != nil {
+		if err == service.ErrCampaignNotFound {
+			return utils.ErrorResponse(c, http.StatusNotFound, "campaign not found", "campaign_not_found")
+		}
+		log.Printf("[ERROR] DeleteCampaign: %v", err)
+		return utils.ErrorResponse(c, http.StatusInternalServerError, "failed to delete campaign", "internal_error")
+	}
+
+	return utils.SuccessResponse(c, http.StatusOK, "campaign deleted", nil)
+}
+
 func (h *QRCampaignHandler) ProcessImage(c echo.Context) error {
 	file, err := c.FormFile("image")
 	if err != nil {

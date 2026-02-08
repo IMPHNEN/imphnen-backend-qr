@@ -140,6 +140,30 @@ func (s *QRCampaignService) SetActiveCampaign(id string) error {
 	return nil
 }
 
+func (s *QRCampaignService) DeleteCampaign(id string) error {
+	campaign, err := s.repo.FindByID(id)
+	if err != nil {
+		return err
+	}
+	if campaign == nil {
+		return ErrCampaignNotFound
+	}
+
+	if err := s.repo.Delete(id); err != nil {
+		return err
+	}
+
+	// Invalidate cache if deleted campaign was the cached one
+	s.cacheMu.Lock()
+	if s.cachedCampaignID == id {
+		s.cachedQR = nil
+		s.cachedCampaignID = ""
+	}
+	s.cacheMu.Unlock()
+
+	return nil
+}
+
 func (s *QRCampaignService) ProcessImage(uploadedImage io.Reader) ([]byte, error) {
 	// Get active campaign QR from cache
 	s.cacheMu.RLock()
