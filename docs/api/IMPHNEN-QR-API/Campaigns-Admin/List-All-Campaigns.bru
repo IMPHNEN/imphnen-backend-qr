@@ -1,0 +1,91 @@
+meta {
+  name: List All Campaigns
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/v1/campaigns
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response has success structure", function() {
+    const body = res.getBody();
+    expect(body).to.have.property("success", true);
+    expect(body).to.have.property("message");
+    expect(body).to.have.property("data");
+  });
+  
+  test("Response contains array of campaigns", function() {
+    const data = res.getBody().data;
+    expect(data).to.be.an("array");
+  });
+  
+  test("Campaigns have required fields", function() {
+    const campaigns = res.getBody().data;
+    if (campaigns && campaigns.length > 0) {
+      const campaign = campaigns[0];
+      expect(campaign).to.have.property("id");
+      expect(campaign).to.have.property("name");
+      expect(campaign).to.have.property("url");
+      expect(campaign).to.have.property("is_active");
+      expect(campaign).to.have.property("created_by");
+      expect(campaign).to.have.property("expires_at");
+    }
+  });
+  
+  test("At most one campaign is active", function() {
+    const campaigns = res.getBody().data;
+    if (campaigns) {
+      const activeCount = campaigns.filter(c => c.is_active === true).length;
+      expect(activeCount).to.be.at.most(1);
+    }
+  });
+}
+
+docs {
+  # List All Campaigns (Admin Only)
+  
+  Get a list of all QR campaigns in the system.
+  
+  ## Authentication
+  Requires Bearer token in Authorization header.
+  
+  ## Authorization
+  Only users with 'admin' role can access this endpoint.
+  
+  ## Success Response (200)
+  ```json
+  {
+    "success": true,
+    "message": "campaigns retrieved",
+    "data": [
+      {
+        "id": "uuid",
+        "name": "Campaign Name",
+        "url": "https://example.com",
+        "is_active": true,
+        "created_by": "admin-uuid",
+        "expires_at": "2026-02-16T...",
+        "created_at": "2026-02-09T...",
+        "updated_at": "2026-02-09T..."
+      }
+    ]
+  }
+  ```
+  
+  ## Notes
+  - Campaigns are ordered by creation date (newest first)
+  - At most 1 campaign will have `is_active: true`
+  - QR code binary data is not included in list response
+}

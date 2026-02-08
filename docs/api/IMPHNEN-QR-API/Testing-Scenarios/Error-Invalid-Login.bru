@@ -40,7 +40,9 @@ tests {
   
   test("No token returned", function() {
     const body = res.getBody();
-    expect(body.data).to.not.have.property("tokens");
+    if (body.data) {
+      expect(body.data).to.not.have.property("tokens");
+    }
   });
 }
 

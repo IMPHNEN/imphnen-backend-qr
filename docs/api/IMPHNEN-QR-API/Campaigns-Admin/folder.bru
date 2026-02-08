@@ -1,0 +1,42 @@
+meta {
+  name: Campaigns-Admin
+  seq: 5
+}
+
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+docs {
+  # Campaign Endpoints (Admin Only)
+  
+  This folder contains campaign management endpoints that require both authentication and admin role.
+  
+  **Authentication Required**: Bearer token in Authorization header  
+  **Authorization Required**: User must have 'admin' role
+  
+  ## Endpoints:
+  - **Create Campaign**: Create a new QR campaign (auto-activates)
+  - **List All Campaigns**: Get all campaigns
+  - **Activate Campaign**: Set a campaign as active
+  
+  ## QR Campaign Flow:
+  1. Admin creates campaign with name + URL
+  2. System generates QR code (256x256 PNG) from URL
+  3. New campaign automatically becomes active (only 1 active at a time)
+  4. Users can then overlay the QR on their images via process-image endpoint
+  
+  ## Access Control:
+  Only users with admin role can manage campaigns.  
+  Regular users will receive 403 Forbidden error.
+  
+  ## Usage:
+  1. Login with an admin account (e.g. admin@imphnen.dev / admin123)
+  2. The access token will be automatically saved
+  3. All requests in this folder will use the saved token
+  4. Create a campaign to enable image processing
+}

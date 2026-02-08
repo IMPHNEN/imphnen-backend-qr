@@ -7,6 +7,7 @@ import (
 	"github.com/IMPHNEN/imphnen-backend-qr/internal/handler"
 	"github.com/IMPHNEN/imphnen-backend-qr/internal/middleware"
 	"github.com/IMPHNEN/imphnen-backend-qr/internal/repository"
+	"github.com/IMPHNEN/imphnen-backend-qr/internal/seeder"
 	"github.com/IMPHNEN/imphnen-backend-qr/internal/service"
 	"github.com/IMPHNEN/imphnen-backend-qr/pkg/database"
 	"github.com/labstack/echo/v4"
@@ -18,16 +19,22 @@ func main() {
 	db := database.NewPostgres(cfg.DatabaseURL)
 	defer db.Close()
 
+	// Auto-seed demo users
+	seeder.Run(db)
+
 	// Repositories
 	userRepo := repository.NewUserRepository(db)
+	qrCampaignRepo := repository.NewQRCampaignRepository(db)
 
 	// Services
 	authService := service.NewAuthService(userRepo, cfg)
 	userService := service.NewUserService(userRepo)
+	qrCampaignService := service.NewQRCampaignService(qrCampaignRepo)
 
 	// Handlers
 	authHandler := handler.NewAuthHandler(authService)
 	userHandler := handler.NewUserHandler(userService)
+	qrCampaignHandler := handler.NewQRCampaignHandler(qrCampaignService)
 
 	// Echo
 	e := echo.New()
@@ -64,6 +71,21 @@ func main() {
 	admin.Use(middleware.RBACMiddleware("admin"))
 	admin.GET("", userHandler.GetAllUsers)
 	admin.PUT("/:id/role", userHandler.UpdateUserRole)
+	admin.DELETE("/:id", userHandler.DeleteUser)
+
+	// Campaign routes (admin - JWT + RBAC)
+	campaigns := e.Group("/api/v1/campaigns")
+	campaigns.Use(middleware.JWTMiddleware(cfg.JWTSecret))
+
+	adminCampaigns := campaigns.Group("")
+	adminCampaigns.Use(middleware.RBACMiddleware("admin"))
+	adminCampaigns.POST("", qrCampaignHandler.CreateCampaign)
+	adminCampaigns.GET("", qrCampaignHandler.GetAllCampaigns)
+	adminCampaigns.PUT("/:id/activate", qrCampaignHandler.SetActiveCampaign)
+	adminCampaigns.DELETE("/:id", qrCampaignHandler.DeleteCampaign)
+
+	// Campaign routes (user - JWT only, all roles)
+	campaigns.POST("/process-image", qrCampaignHandler.ProcessImage)
 
 	log.Printf("server starting on port %s", cfg.Port)
 	e.Logger.Fatal(e.Start(":" + cfg.Port))

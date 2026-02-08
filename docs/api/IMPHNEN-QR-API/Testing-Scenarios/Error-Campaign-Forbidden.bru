@@ -1,0 +1,71 @@
+meta {
+  name: Error - Campaign Forbidden
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/api/v1/campaigns
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "name": "Should Fail",
+    "url": "https://example.com"
+  }
+}
+
+script:pre-request {
+  // Login as regular user to get a non-admin token
+  const baseUrl = bru.getEnvVar('baseUrl');
+  const loginRes = await axios.post(baseUrl + '/api/v1/auth/login', {
+    email: 'user@imphnen.dev',
+    password: 'user123'
+  });
+  
+  if (loginRes && loginRes.data && loginRes.data.data && loginRes.data.data.tokens) {
+    const userToken = loginRes.data.data.tokens.access_token;
+    bru.setEnvVar('accessToken', userToken);
+    console.log('🔑 Logged in as regular user for forbidden test');
+  } else {
+    console.log('❌ Failed to login as regular user');
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 403) {
+    console.log("✅ Correctly returned 403 for non-admin user");
+  }
+}
+
+tests {
+  test("Returns 403 for non-admin user", function() {
+    expect(res.getStatus()).to.equal(403);
+  });
+  
+  test("Response has error structure", function() {
+    const body = res.getBody();
+    expect(body.success).to.equal(false);
+    expect(body).to.have.property("error");
+  });
+}
+
+docs {
+  # Error Scenario: Campaign Creation Forbidden
+  
+  Test that regular users cannot create campaigns (admin-only endpoint).
+  
+  **Setup**: Login as a regular user (user@imphnen.dev / user123) before running this test.
+  
+  **Expected**: 403 Forbidden
+}

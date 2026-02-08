@@ -73,3 +73,15 @@ func (s *UserService) UpdateUserRole(userID, role string) error {
 
 	return s.userRepo.UpdateRole(userID, role)
 }
+
+func (s *UserService) DeleteUser(userID string) error {
+	user, err := s.userRepo.FindByID(userID)
+	if err != nil {
+		return err
+	}
+	if user == nil {
+		return ErrUserNotFound
+	}
+
+	return s.userRepo.Delete(userID)
+}

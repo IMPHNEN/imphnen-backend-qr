@@ -1,0 +1,89 @@
+meta {
+  name: Error - No Active Campaign
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/api/v1/campaigns/process-image
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:multipart-form {
+  image: @file(../img/test-sample.jpeg)
+}
+
+script:pre-request {
+  // Login as admin and delete all campaigns to ensure no active campaign
+  const baseUrl = bru.getEnvVar('baseUrl');
+  
+  const loginRes = await axios.post(baseUrl + '/api/v1/auth/login', {
+    email: 'admin@imphnen.dev',
+    password: 'admin123'
+  });
+  
+  if (!loginRes || !loginRes.data || !loginRes.data.data) {
+    console.log('❌ Failed to login as admin');
+    return;
+  }
+  
+  const adminToken = loginRes.data.data.tokens.access_token;
+  const headers = { 'Authorization': 'Bearer ' + adminToken };
+  
+  // List all campaigns
+  const listRes = await axios.get(baseUrl + '/api/v1/campaigns', { headers });
+  const campaigns = (listRes && listRes.data && listRes.data.data) ? listRes.data.data : [];
+  
+  // Delete each campaign
+  for (const campaign of campaigns) {
+    await axios.delete(baseUrl + '/api/v1/campaigns/' + campaign.id, { headers });
+  }
+  
+  console.log('🧹 Cleaned up ' + campaigns.length + ' campaign(s)');
+  
+  // Login as regular user for the actual test
+  const userLoginRes = await axios.post(baseUrl + '/api/v1/auth/login', {
+    email: 'user@imphnen.dev',
+    password: 'user123'
+  });
+  
+  if (userLoginRes && userLoginRes.data && userLoginRes.data.data) {
+    bru.setEnvVar('accessToken', userLoginRes.data.data.tokens.access_token);
+    console.log('🔑 Logged in as regular user for no-active-campaign test');
+  } else {
+    console.log('❌ Failed to login as regular user');
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 404) {
+    console.log("✅ Correctly returned 404 when no active campaign");
+  }
+}
+
+tests {
+  test("Returns 404 when no active campaign", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+  
+  test("Response has correct error", function() {
+    const body = res.getBody();
+    expect(body.success).to.equal(false);
+    expect(body.error).to.equal("no_active_campaign");
+  });
+}
+
+docs {
+  # Error Scenario: No Active Campaign
+  
+  Test that processing an image without an active campaign returns a clear error.
+  
+  **Pre-request**: Automatically logs in as admin, deletes all campaigns, then logs in as regular user.
+  
+  **Expected**: 404 with error "no_active_campaign"
+}

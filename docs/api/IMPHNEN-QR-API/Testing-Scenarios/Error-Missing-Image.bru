@@ -1,0 +1,41 @@
+meta {
+  name: Error - Missing Image
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/api/v1/campaigns/process-image
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+script:post-response {
+  if (res.getStatus() === 400) {
+    console.log("✅ Correctly returned 400 for missing image");
+  }
+}
+
+tests {
+  test("Returns 400 for missing image", function() {
+    expect(res.getStatus()).to.equal(400);
+  });
+  
+  test("Response has error structure", function() {
+    const body = res.getBody();
+    expect(body.success).to.equal(false);
+    expect(body.error).to.equal("validation_error");
+  });
+}
+
+docs {
+  # Error Scenario: Missing Image File
+  
+  Test that the process-image endpoint requires an image file.
+  
+  **Expected**: 400 Bad Request with validation error
+}

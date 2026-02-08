@@ -1,0 +1,68 @@
+meta {
+  name: 6. Create Campaign
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/v1/campaigns
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "name": "Test Scenario Campaign",
+    "url": "https://imphnen.dev/test-scenario"
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 201) {
+    const data = res.getBody();
+    if (data.data && data.data.id) {
+      bru.setEnvVar("campaignId", data.data.id);
+    }
+    console.log("✅ Step 6: Campaign created successfully");
+  }
+}
+
+tests {
+  test("Campaign created successfully", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  
+  test("Campaign is auto-activated", function() {
+    const campaign = res.getBody().data;
+    expect(campaign.is_active).to.equal(true);
+  });
+  
+  test("Campaign has correct data", function() {
+    const campaign = res.getBody().data;
+    expect(campaign.name).to.equal("Test Scenario Campaign");
+    expect(campaign.url).to.equal("https://imphnen.dev/test-scenario");
+    expect(campaign).to.have.property("id");
+    expect(campaign).to.have.property("expires_at");
+  });
+  
+  test("Campaign ID is saved", function() {
+    expect(bru.getEnvVar("campaignId")).to.be.a("string");
+  });
+}
+
+docs {
+  # Scenario Step 6: Create Campaign
+  
+  Create a new QR campaign as admin. The campaign will be auto-activated.
+  
+  **Prerequisites**: Must be logged in as admin (Step 5)
+  **Next Step**: 7. List Campaigns
+}

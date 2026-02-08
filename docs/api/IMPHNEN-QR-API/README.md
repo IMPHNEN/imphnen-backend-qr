@@ -19,6 +19,12 @@ IMPHNEN-QR-API/
 ├── Admin/                        # Admin endpoints (admin role required)
 │   ├── List-All-Users.bru
 │   └── Update-User-Role.bru
+├── Campaigns-Admin/              # Campaign management (admin role required)
+│   ├── Create-Campaign.bru
+│   ├── List-All-Campaigns.bru
+│   └── Activate-Campaign.bru
+├── Campaigns-User/               # Campaign user endpoints (auth required)
+│   └── Process-Image.bru
 └── environments/                 # Environment configurations
     ├── Development.bru           # localhost:8080
     ├── Local-Alternative.bru     # localhost:3000
@@ -73,6 +79,13 @@ Requires Bearer token:
 Requires Bearer token + Admin role:
 - List All Users
 - Update User Role
+- Create Campaign
+- List All Campaigns
+- Activate Campaign
+
+### Campaign Endpoints
+Requires Bearer token (any role):
+- Process Image (upload image, get QR overlay)
 
 ## 🔑 Authentication
 

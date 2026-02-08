@@ -6,12 +6,13 @@ Dokumentasi API lengkap dengan testing menggunakan Bruno API Client untuk IMPHNE
 
 ### 📦 Package Contents
 
-1. **10 Endpoint Dokumentasi Lengkap** ✅
+1. **14 Endpoint Dokumentasi Lengkap** ✅
 2. **3 Environment Konfigurasi** (Dev, Prod, Alt) ✅
-3. **8 Testing Scenarios** (Happy path + Error cases) ✅
+3. **15 Testing Scenarios** (Happy path + Campaign flow + Error cases) ✅
 4. **5 Documentation Files** (README, Quick Start, Contributing, dll) ✅
 5. **Automated Tests** untuk setiap endpoint ✅
 6. **Auto-save Token System** ✅
+7. **QR Campaign Overlay** endpoints ✅
 
 ---
 
@@ -65,6 +66,22 @@ Admin/
 └── Update-User-Role.bru   → Change user role
 ```
 
+#### 4️⃣ Campaign Management (Admin Only)
+```
+Campaigns-Admin/
+├── folder.bru             → Folder configuration
+├── Create-Campaign.bru    → Create QR campaign
+├── List-All-Campaigns.bru → List all campaigns
+└── Activate-Campaign.bru  → Set active campaign
+```
+
+#### 5️⃣ Campaign User Operations (Protected)
+```
+Campaigns-User/
+├── folder.bru             → Folder configuration
+└── Process-Image.bru      → Upload image, get QR overlay
+```
+
 ### Environments
 ```
 environments/
@@ -82,10 +99,17 @@ Testing-Scenarios/
 ├── 2-Get-New-User-Profile.bru    → Step 2 of happy path
 ├── 3-Update-User-Profile.bru     → Step 3 of happy path
 ├── 4-Verify-Profile-Updated.bru  → Step 4 of happy path
+├── 5-Login-Admin.bru             → Step 5 of campaign flow
+├── 6-Create-Campaign.bru         → Step 6 of campaign flow
+├── 7-List-Campaigns.bru          → Step 7 of campaign flow
+├── 8-Process-Image.bru           → Step 8 of campaign flow
 ├── Error-Invalid-Login.bru       → Error test: wrong credentials
 ├── Error-Duplicate-Email.bru     → Error test: duplicate registration
 ├── Error-Missing-Authorization.bru → Error test: no token
-└── Error-Invalid-Request-Body.bru → Error test: invalid payload
+├── Error-Invalid-Request-Body.bru → Error test: invalid payload
+├── Error-Campaign-Forbidden.bru  → Error test: non-admin campaign create
+├── Error-No-Active-Campaign.bru  → Error test: process without campaign
+└── Error-Missing-Image.bru       → Error test: process without image
 ```
 
 ---
@@ -258,25 +282,39 @@ post-response {
 ```
 **Time**: ~1 minute
 
-### Scenario 3: Error Testing
+### Scenario 3: Campaign Flow
+```
+1. Login as Admin    → Auto-save token
+2. Create Campaign   → Generate QR code
+3. List Campaigns    → Verify active
+4. Process Image     → Upload & get QR overlay
+```
+**Time**: ~2 minutes
+
+### Scenario 4: Error Testing
 ```
 1. Invalid Login     → Expect 401
 2. Duplicate Email   → Expect 409
 3. No Authorization  → Expect 401
 4. Invalid Body      → Expect 400
+5. Campaign Forbidden→ Expect 403
+6. No Active Campaign→ Expect 404
+7. Missing Image     → Expect 400
 ```
-**Time**: ~2 minutes
+**Time**: ~3 minutes
 
-### Scenario 4: Full API Test
+### Scenario 5: Full API Test
 ```
 1. Health Check      → Verify API
 2. Register          → Create account
 3. Login             → Get tokens
 4. Profile Ops       → CRUD operations
 5. Admin Ops         → Admin features
-6. Error Cases       → Error handling
+6. Campaign Ops      → QR campaign flow
+7. Image Processing  → QR overlay
+8. Error Cases       → Error handling
 ```
-**Time**: ~5 minutes
+**Time**: ~7 minutes
 
 ---
 
@@ -284,15 +322,15 @@ post-response {
 
 | Metric | Count |
 |--------|-------|
-| Total Endpoints | 10 |
+| Total Endpoints | 14 |
 | Public Endpoints | 6 |
-| Protected Endpoints | 2 |
-| Admin Endpoints | 2 |
-| Test Scenarios | 8 |
+| Protected Endpoints | 3 |
+| Admin Endpoints | 5 |
+| Test Scenarios | 15 |
 | Environments | 3 |
 | Documentation Pages | 5 |
-| Automated Tests | 40+ |
-| Lines of Docs | 2000+ |
+| Automated Tests | 60+ |
+| Lines of Docs | 3000+ |
 
 **API Coverage**: 100% ✅
 
@@ -343,8 +381,9 @@ Total: ~15 seconds per endpoint
 1. All Public Endpoints    → 2 min
 2. All Protected Endpoints → 1 min
 3. All Admin Endpoints     → 1 min
-4. All Error Scenarios     → 2 min
-Total: ~6 minutes
+4. All Campaign Endpoints  → 2 min
+5. All Error Scenarios     → 3 min
+Total: ~9 minutes
 ```
 
 ---

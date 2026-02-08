@@ -18,7 +18,7 @@ script:post-response {
   if (res.getStatus() === 200) {
     const data = res.getBody();
     if (data.data && data.data.tokens) {
-      bru.setVar("accessToken", data.data.tokens.access_token);
+      bru.setEnvVar("accessToken", data.data.tokens.access_token);
     }
   }
 }

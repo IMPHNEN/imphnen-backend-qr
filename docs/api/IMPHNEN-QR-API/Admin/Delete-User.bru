@@ -1,0 +1,64 @@
+meta {
+  name: Delete User
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{baseUrl}}/api/v1/users/:id
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+params:path {
+  id: {{userId}}
+}
+
+docs {
+  # Delete User
+  
+  **DELETE** `/api/v1/users/:id`
+  
+  Permanently deletes a user account. Admin role required.
+  
+  ## Path Parameters
+  
+  | Parameter | Type   | Description         |
+  |-----------|--------|---------------------|
+  | id        | string | UUID of the user    |
+  
+  ## Responses
+  
+  ### 200 OK
+  ```json
+  {
+    "status": "success",
+    "message": "User deleted successfully"
+  }
+  ```
+  
+  ### 404 Not Found
+  ```json
+  {
+    "status": "error",
+    "message": "User not found"
+  }
+  ```
+  
+  ### 403 Forbidden
+  ```json
+  {
+    "status": "error",
+    "message": "Access denied"
+  }
+  ```
+  
+  ## Notes
+  - Requires admin role
+  - Cannot be undone
+  - Also removes any campaigns created by the user (via foreign key CASCADE)
+}

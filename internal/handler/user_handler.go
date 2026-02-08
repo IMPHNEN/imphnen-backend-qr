@@ -79,3 +79,18 @@ func (h *UserHandler) UpdateUserRole(c echo.Context) error {
 
 	return utils.SuccessResponse(c, http.StatusOK, "user role updated", nil)
 }
+
+func (h *UserHandler) DeleteUser(c echo.Context) error {
+	id := c.Param("id")
+
+	if err := h.userService.DeleteUser(id); err != nil {
+		if errors.Is(err, service.ErrUserNotFound) {
+			log.Printf("[WARN] DeleteUser: user not found for id = %q", id)
+			return utils.ErrorResponse(c, http.StatusNotFound, "user not found", "user_not_found")
+		}
+		log.Printf("[ERROR] DeleteUser: %v", err)
+		return utils.ErrorResponse(c, http.StatusInternalServerError, "failed to delete user", "internal_error")
+	}
+
+	return utils.SuccessResponse(c, http.StatusOK, "user deleted", nil)
+}
