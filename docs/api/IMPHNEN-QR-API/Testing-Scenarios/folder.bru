@@ -1,0 +1,143 @@
+meta {
+  name: Testing-Scenarios
+}
+
+docs {
+  # Testing Scenarios
+  
+  This folder contains pre-configured test scenarios for common workflows.
+  Each scenario is a sequence of requests designed to test specific use cases.
+  
+  ## Available Scenarios:
+  
+  ### 1. Happy Path - New User
+  Complete flow for a new user from registration to profile management.
+  
+  ### 2. Happy Path - Returning User  
+  Login flow for existing users and profile operations.
+  
+  ### 3. Admin Operations
+  Complete admin workflow including user management.
+  
+  ### 4. Token Lifecycle
+  Testing token generation, usage, and refresh.
+  
+  ### 5. Error Scenarios
+  Testing various error conditions and edge cases.
+  
+  ## How to Use:
+  1. Open a scenario
+  2. Run requests in sequence (top to bottom)
+  3. Check test results after each request
+  4. All tokens and variables are auto-managed
+  
+  ## Tips:
+  - Each scenario is independent
+  - Scenarios include appropriate waits/delays
+  - Data is automatically cleaned up where needed
+  - All tests should pass if API is working correctly
+  
+  ---
+  
+  # Testing Scenarios Guide
+  
+  ## 📋 Available Scenarios
+  
+  ### Happy Path Scenarios
+  
+  #### New User Flow (Steps 1-4)
+  Complete workflow for new user:
+  1. Register New User
+  2. Get New User Profile
+  3. Update User Profile
+  4. Verify Profile Updated
+  
+  **Run in sequence** to test complete user journey.
+  
+  ### Error Scenarios
+  
+  #### Individual Error Tests
+  - **Error - Invalid Login**: Wrong credentials
+  - **Error - Duplicate Email**: Email already exists
+  - **Error - Missing Authorization**: No token provided
+  - **Error - Invalid Request Body**: Missing required fields
+  
+  **Can run independently** to test error handling.
+  
+  ## 🎯 How to Use
+  
+  ### Running a Scenario
+  1. Start with step 1 of any scenario
+  2. Run each step in sequence
+  3. Check test results (should all pass ✅)
+  4. Review console logs for progress
+  
+  ### What to Expect
+  - All tokens auto-saved between steps
+  - Console logs show progress
+  - Tests validate each response
+  - Variables preserved across requests
+  
+  ### After Scenario Completion
+  - Test data remains in database
+  - Tokens remain in environment
+  - Safe to run other scenarios
+  
+  ## 🔧 Customization
+  
+  ### Change Test Data
+  Edit the `body:json` section in each request.
+  
+  ### Add New Scenarios
+  1. Create new `.bru` files in this folder
+  2. Follow existing naming pattern
+  3. Include proper sequencing (seq)
+  4. Add tests and documentation
+  
+  ### Chain Multiple Scenarios
+  Use saved variables (`{{accessToken}}`, `{{userId}}`) to link scenarios.
+  
+  ## 💡 Tips
+  
+  - **Start Fresh**: Clear variables between scenario runs if needed
+  - **Check Logs**: Console logs show progress and errors
+  - **Test Results**: Green checkmarks mean success
+  - **Sequential Order**: Numbers indicate execution order
+  
+  ## 🐛 Troubleshooting
+  
+  ### Scenario Fails Mid-way
+  - Check if previous steps completed successfully
+  - Verify token was saved (check environment)
+  - Ensure server is running
+  
+  ### Error Scenarios Pass When They Shouldn't
+  - Verify test data matches scenario requirements
+  - Check if prerequisite data exists in database
+  
+  ### Variables Not Saving
+  - Check `script:post-response` section
+  - Verify response structure matches expected
+  - Look for errors in console
+  
+  ## 📊 Validation
+  
+  Each scenario includes:
+  - ✅ Status code assertions
+  - ✅ Response structure validation
+  - ✅ Data integrity checks
+  - ✅ Business logic verification
+  - ✅ Console logging for debugging
+  
+  ## 🎓 Best Practices
+  
+  1. **Run scenarios in order** on first test
+  2. **Check all test results** (green checkmarks)
+  3. **Review console logs** for detailed feedback
+  4. **Clean up test data** periodically
+  5. **Document custom scenarios** you create
+  
+  ---
+  
+  **Tip**: Use these scenarios as templates for creating your own test cases!
+}

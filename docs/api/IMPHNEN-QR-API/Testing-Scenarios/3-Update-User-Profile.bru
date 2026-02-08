@@ -1,0 +1,49 @@
+meta {
+  name: 3. Update User Profile
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/api/v1/users/me
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{accessToken}}
+}
+
+body:json {
+  {
+    "name": "Test User Updated"
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    console.log("✅ Step 3/4: Profile updated successfully");
+  }
+}
+
+tests {
+  test("Profile updated successfully", function() {
+    expect(res.getStatus()).to.equal(200);
+    const user = res.getBody().data;
+    expect(user.name).to.equal("Test User Updated");
+  });
+}
+
+docs {
+  # Scenario Step 3: Update User Profile
+  
+  Test profile update functionality.
+  
+  **Previous**: 2. Get New User Profile
+  **Next Step**: 4. Verify Profile Updated
+}

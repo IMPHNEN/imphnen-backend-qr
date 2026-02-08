@@ -1,0 +1,52 @@
+meta {
+  name: 4. Verify Profile Updated
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/v1/users/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  Authorization: Bearer {{accessToken}}
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    console.log("✅ Step 4/4: Scenario completed successfully!");
+    console.log("🎉 All tests passed for Happy Path - New User");
+  }
+}
+
+tests {
+  test("Profile changes persisted", function() {
+    expect(res.getStatus()).to.equal(200);
+    const user = res.getBody().data;
+    expect(user.name).to.equal("Test User Updated");
+    expect(user.email).to.equal("scenario.user@test.com");
+  });
+}
+
+docs {
+  # Scenario Step 4: Verify Profile Updated
+  
+  Confirm that profile changes were persisted.
+  
+  **Previous**: 3. Update User Profile
+  **Scenario Complete**: Happy Path - New User ✅
+  
+  ## Summary
+  This scenario tested:
+  - ✅ User registration
+  - ✅ Profile retrieval
+  - ✅ Profile update
+  - ✅ Data persistence
+  - ✅ Token management
+}

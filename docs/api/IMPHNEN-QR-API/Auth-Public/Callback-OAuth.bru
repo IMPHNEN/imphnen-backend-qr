@@ -1,0 +1,76 @@
+meta {
+  name: Google OAuth Callback
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/v1/auth/google/callback?code=sample_authorization_code
+  body: none
+  auth: none
+}
+
+params:query {
+  code: sample_authorization_code
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    const data = res.getBody();
+    if (data.data && data.data.tokens) {
+      bru.setVar("accessToken", data.data.tokens.access_token);
+    }
+  }
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response has success structure", function() {
+    const body = res.getBody();
+    expect(body).to.have.property("success", true);
+    expect(body).to.have.property("message");
+  });
+  
+  test("Response contains user and tokens", function() {
+    const data = res.getBody().data;
+    expect(data).to.have.property("user");
+    expect(data).to.have.property("tokens");
+  });
+}
+
+docs {
+  # Google OAuth Callback
+  
+  Handles the callback from Google OAuth after user consent.
+  Exchanges the authorization code for user information and creates/logs in the user.
+  
+  ## Query Parameters
+  - `code` (string, required): Authorization code from Google
+  
+  ## Success Response (200)
+  ```json
+  {
+    "success": true,
+    "message": "google login successful",
+    "data": {
+      "user": {
+        "id": "uuid",
+        "email": "user@gmail.com",
+        "name": "User Name",
+        "role": "user"
+      },
+      "tokens": {
+        "access_token": "jwt_token",
+        "refresh_token": "jwt_refresh_token"
+      }
+    }
+  }
+  ```
+  
+  ## Note
+  This endpoint is typically called by Google, not manually. 
+  For manual testing, you need a valid authorization code from Google OAuth flow.
+}

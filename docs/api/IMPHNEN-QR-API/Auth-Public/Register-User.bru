@@ -1,0 +1,98 @@
+meta {
+  name: Register User
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/v1/auth/register
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "password": "SecurePassword123!"
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 201) {
+    const data = res.getBody();
+    if (data.data && data.data.tokens) {
+      bru.setEnvVar("accessToken", data.data.tokens.access_token);
+      bru.setEnvVar("refreshToken", data.data.tokens.refresh_token);
+      bru.setEnvVar("userId", data.data.user.id);
+    }
+  }
+}
+
+tests {
+  test("Status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  
+  test("Response has success structure", function() {
+    const body = res.getBody();
+    expect(body).to.have.property("success", true);
+    expect(body).to.have.property("message");
+    expect(body).to.have.property("data");
+  });
+  
+  test("Response contains user and tokens", function() {
+    const data = res.getBody().data;
+    expect(data).to.have.property("user");
+    expect(data).to.have.property("tokens");
+    expect(data.tokens).to.have.property("access_token");
+    expect(data.tokens).to.have.property("refresh_token");
+  });
+  
+  test("User data is correct", function() {
+    const user = res.getBody().data.user;
+    expect(user).to.have.property("id");
+    expect(user).to.have.property("email");
+    expect(user).to.have.property("name");
+    expect(user.email).to.be.a("string");
+  });
+}
+
+docs {
+  # Register New User
+  
+  Create a new user account with email and password.
+  
+  ## Request Body
+  - `name` (string, required): User's full name
+  - `email` (string, required): Valid email address
+  - `password` (string, required): Strong password
+  
+  ## Success Response (201)
+  ```json
+  {
+    "success": true,
+    "message": "registration successful",
+    "data": {
+      "user": {
+        "id": "uuid",
+        "email": "john.doe@example.com",
+        "name": "John Doe",
+        "role": "user",
+        "created_at": "timestamp"
+      },
+      "tokens": {
+        "access_token": "jwt_token",
+        "refresh_token": "jwt_refresh_token"
+      }
+    }
+  }
+  ```
+  
+  ## Error Response (409)
+  - Email already exists
+}

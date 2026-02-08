@@ -1,0 +1,36 @@
+meta {
+  name: Google OAuth Redirect
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/v1/auth/google
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status code is 307 (Temporary Redirect)", function() {
+    expect(res.getStatus()).to.equal(307);
+  });
+  
+  test("Location header contains google oauth", function() {
+    const location = res.getHeader("location");
+    expect(location).to.include("accounts.google.com");
+  });
+}
+
+docs {
+  # Google OAuth Redirect
+  
+  Initiates Google OAuth flow by redirecting to Google's consent page.
+  This endpoint generates a state parameter and redirects to Google OAuth.
+  
+  ## Response
+  - HTTP 307 Temporary Redirect
+  - Location header: Google OAuth URL with state parameter
+  
+  ## Usage
+  Open this URL in a browser to start Google OAuth flow.
+}

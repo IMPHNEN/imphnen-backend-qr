@@ -1,0 +1,68 @@
+meta {
+  name: Get Profile
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/users/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response has success structure", function() {
+    const body = res.getBody();
+    expect(body).to.have.property("success", true);
+    expect(body).to.have.property("message");
+    expect(body).to.have.property("data");
+  });
+  
+  test("Response contains user profile", function() {
+    const user = res.getBody().data;
+    expect(user).to.have.property("id");
+    expect(user).to.have.property("email");
+    expect(user).to.have.property("name");
+    expect(user).to.have.property("role");
+  });
+}
+
+docs {
+  # Get User Profile
+  
+  Get the authenticated user's profile information.
+  
+  ## Authentication
+  Requires Bearer token in Authorization header.
+  
+  ## Success Response (200)
+  ```json
+  {
+    "success": true,
+    "message": "profile retrieved",
+    "data": {
+      "id": "uuid",
+      "email": "user@example.com",
+      "name": "User Name",
+      "role": "user",
+      "google_id": null,
+      "created_at": "timestamp",
+      "updated_at": "timestamp"
+    }
+  }
+  ```
+  
+  ## Error Response (401)
+  - Missing or invalid access token
+  
+  ## Error Response (404)
+  - User not found
+}

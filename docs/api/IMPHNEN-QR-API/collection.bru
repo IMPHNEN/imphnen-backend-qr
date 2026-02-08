@@ -1,0 +1,78 @@
+scripts {
+  pre-request {
+    // Collection-level pre-request script
+    // Runs before every request in this collection
+    
+    // Log current request
+    console.log(`[${req.getMethod()}] ${req.getUrl()}`);
+    
+    // Check if token exists for protected endpoints
+    const url = req.getUrl();
+    if (url.includes('/users') && !url.includes('/auth')) {
+      const token = bru.getVar('accessToken');
+      if (!token) {
+        console.warn('⚠️ Warning: No access token found. Login first!');
+      }
+    }
+  }
+  
+  post-response {
+    // Collection-level post-response script
+    // Runs after every response
+    
+    const status = res.getStatus();
+    const method = req.getMethod();
+    const url = req.getUrl();
+    
+    // Log response status
+    if (status >= 200 && status < 300) {
+      console.log(`✅ ${method} ${url} - ${status}`);
+    } else if (status >= 400) {
+      console.error(`❌ ${method} ${url} - ${status}`);
+      console.error('Error:', res.getBody());
+    }
+    
+    // Auto-save token from any auth response
+    if (url.includes('/auth/')) {
+      const body = res.getBody();
+      if (body.data && body.data.tokens && body.data.tokens.access_token) {
+        bru.setVar('accessToken', body.data.tokens.access_token);
+        console.log('🔑 Access token saved');
+      }
+    }
+  }
+  
+  test {
+    // Collection-level tests
+    // Runs for every request
+    
+    test("Response time is acceptable", function() {
+      expect(res.getResponseTime()).to.be.below(5000);
+    });
+    
+    test("Response is valid JSON", function() {
+      expect(() => res.getBody()).to.not.throw();
+    });
+    
+    test("No server errors (5xx)", function() {
+      expect(res.getStatus()).to.be.below(500);
+    });
+  }
+}
+
+docs {
+  # IMPHNEN QR API Collection
+  
+  Complete API testing collection for IMPHNEN QR Backend.
+  
+  ## Features
+  - ✅ Auto-save tokens
+  - 🧪 Automated tests
+  - 📖 Complete documentation
+  - 🔄 Environment switching
+  
+  ## Quick Links
+  - [Quick Start](QUICK-START.md)
+  - [Full Documentation](README.md)
+  - [Backend Repo](https://github.com/IMPHNEN/imphnen-backend-qr)
+}

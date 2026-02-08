@@ -1,0 +1,88 @@
+meta {
+  name: List All Users
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/users
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response has success structure", function() {
+    const body = res.getBody();
+    expect(body).to.have.property("success", true);
+    expect(body).to.have.property("message");
+    expect(body).to.have.property("data");
+  });
+  
+  test("Response contains array of users", function() {
+    const data = res.getBody().data;
+    expect(data).to.be.an("array");
+  });
+  
+  test("Users have required fields", function() {
+    const users = res.getBody().data;
+    if (users.length > 0) {
+      const user = users[0];
+      expect(user).to.have.property("id");
+      expect(user).to.have.property("email");
+      expect(user).to.have.property("name");
+      expect(user).to.have.property("role");
+    }
+  });
+}
+
+docs {
+  # List All Users (Admin Only)
+  
+  Get a list of all registered users in the system.
+  
+  ## Authentication
+  Requires Bearer token in Authorization header.
+  
+  ## Authorization
+  Only users with 'admin' role can access this endpoint.
+  
+  ## Success Response (200)
+  ```json
+  {
+    "success": true,
+    "message": "users retrieved",
+    "data": [
+      {
+        "id": "uuid",
+        "email": "user1@example.com",
+        "name": "User One",
+        "role": "user",
+        "created_at": "timestamp",
+        "updated_at": "timestamp"
+      },
+      {
+        "id": "uuid",
+        "email": "admin@example.com",
+        "name": "Admin User",
+        "role": "admin",
+        "created_at": "timestamp",
+        "updated_at": "timestamp"
+      }
+    ]
+  }
+  ```
+  
+  ## Error Response (401)
+  - Missing or invalid access token
+  
+  ## Error Response (403)
+  - User does not have admin role
+}

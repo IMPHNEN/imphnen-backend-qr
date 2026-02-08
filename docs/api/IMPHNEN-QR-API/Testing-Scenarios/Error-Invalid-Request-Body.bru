@@ -1,0 +1,47 @@
+meta {
+  name: Error - Invalid Request Body
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/api/v1/auth/register
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "incomplete@test.com"
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 400) {
+    console.log("✅ Correctly returned 400 for invalid body");
+  }
+}
+
+tests {
+  test("Returns 400 for invalid body", function() {
+    expect(res.getStatus()).to.equal(400);
+  });
+  
+  test("Response indicates validation error", function() {
+    const body = res.getBody();
+    expect(body.success).to.equal(false);
+    expect(body.message).to.be.a("string");
+  });
+}
+
+docs {
+  # Error Scenario: Invalid Request Body
+  
+  Test validation of required fields.
+  
+  **Expected**: 400 Bad Request
+}

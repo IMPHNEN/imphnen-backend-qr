@@ -1,0 +1,22 @@
+meta {
+  name: Auth-Public
+  seq: 2
+}
+
+auth {
+  mode: none
+}
+
+docs {
+  # Authentication Endpoints (Public)
+  
+  This folder contains all public authentication endpoints that don't require authentication:
+  
+  - **Register User**: Create a new user account
+  - **Login User**: Authenticate with email/password
+  - **Google OAuth Redirect**: Initialize Google OAuth flow
+  - **Google OAuth Callback**: Handle Google OAuth callback
+  - **Refresh Token**: Get new access token using refresh token
+  
+  All requests in this folder automatically save the access token to environment variable for use in protected endpoints.
+}

@@ -1,0 +1,34 @@
+meta {
+  name: Check Health
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/health
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response contains status ok", function() {
+    expect(res.getBody().status).to.equal("ok");
+  });
+}
+
+docs {
+  # Health Check Endpoint
+  
+  Check if the API server is running and healthy.
+  
+  ## Expected Response
+  ```json
+  {
+    "status": "ok"
+  }
+  ```
+}

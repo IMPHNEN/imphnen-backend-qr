@@ -1,0 +1,29 @@
+meta {
+  name: Users-Protected
+  seq: 3
+}
+
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+docs {
+  # User Endpoints (Protected)
+  
+  This folder contains user-specific endpoints that require authentication.
+  
+  **Authentication Required**: All requests require Bearer token in Authorization header.
+  
+  ## Endpoints:
+  - **Get Profile**: Retrieve authenticated user's profile
+  - **Update Profile**: Update authenticated user's information
+  
+  ## Usage:
+  1. First login/register using Auth-Public endpoints
+  2. The access token will be automatically saved
+  3. All requests in this folder will use the saved token
+}

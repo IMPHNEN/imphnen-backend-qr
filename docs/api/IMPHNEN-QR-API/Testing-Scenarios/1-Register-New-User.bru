@@ -1,0 +1,52 @@
+meta {
+  name: 1. Register New User
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/v1/auth/register
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Test User Scenario",
+    "email": "scenario.user@test.com",
+    "password": "TestPassword123!"
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 201) {
+    const data = res.getBody();
+    if (data.data && data.data.tokens) {
+      bru.setEnvVar("accessToken", data.data.tokens.access_token);
+      bru.setEnvVar("refreshToken", data.data.tokens.refresh_token);
+      bru.setEnvVar("userId", data.data.user.id);
+    }
+    console.log("✅ Step 1/4: User registered successfully");
+  }
+}
+
+tests {
+  test("User registered successfully", function() {
+    expect(res.getStatus()).to.equal(201);
+    const data = res.getBody().data;
+    expect(data.user.email).to.equal("scenario.user@test.com");
+    expect(data.tokens.access_token).to.be.a("string");
+  });
+}
+
+docs {
+  # Scenario Step 1: Register New User
+  
+  Create a new user account for testing.
+  
+  **Next Step**: 2. Get New User Profile
+}
