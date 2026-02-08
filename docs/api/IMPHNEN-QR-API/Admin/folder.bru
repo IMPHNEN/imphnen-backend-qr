@@ -1,0 +1,35 @@
+meta {
+  name: Admin
+  seq: 4
+}
+
+auth {
+  mode: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+docs {
+  # Admin Endpoints (Protected)
+  
+  This folder contains administrative endpoints that require both authentication and admin role.
+  
+  **Authentication Required**: Bearer token in Authorization header  
+  **Authorization Required**: User must have 'admin' role
+  
+  ## Endpoints:
+  - **List All Users**: Get all registered users
+  - **Update User Role**: Promote/demote users (change role)
+  
+  ## Access Control:
+  Only users with admin role can access these endpoints.  
+  Regular users will receive 403 Forbidden error.
+  
+  ## Usage:
+  1. Login with an admin account
+  2. The access token will be automatically saved
+  3. All requests in this folder will use the saved token
+  4. Ensure your user has admin role before testing
+}

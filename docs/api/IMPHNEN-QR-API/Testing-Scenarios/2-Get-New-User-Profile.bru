@@ -1,0 +1,39 @@
+meta {
+  name: 2. Get New User Profile
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/v1/users/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    console.log("✅ Step 2/4: Profile retrieved successfully");
+  }
+}
+
+tests {
+  test("Profile retrieved successfully", function() {
+    expect(res.getStatus()).to.equal(200);
+    const user = res.getBody().data;
+    expect(user.email).to.equal("scenario.user@test.com");
+    expect(user.role).to.equal("user");
+  });
+}
+
+docs {
+  # Scenario Step 2: Get New User Profile
+  
+  Verify user can retrieve their profile after registration.
+  
+  **Previous**: 1. Register New User
+  **Next Step**: 3. Update User Profile
+}

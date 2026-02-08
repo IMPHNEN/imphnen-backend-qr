@@ -1,0 +1,36 @@
+meta {
+  name: Error - Missing Authorization
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/v1/users/me
+  body: none
+  auth: none
+}
+
+script:post-response {
+  if (res.getStatus() === 401) {
+    console.log("✅ Correctly returned 401 for missing token");
+  }
+}
+
+tests {
+  test("Returns 401 without authorization", function() {
+    expect(res.getStatus()).to.equal(401);
+  });
+  
+  test("Response has error structure", function() {
+    const body = res.getBody();
+    expect(body.success).to.equal(false);
+  });
+}
+
+docs {
+  # Error Scenario: Missing Authorization
+  
+  Test that protected endpoint rejects requests without token.
+  
+  **Expected**: 401 Unauthorized
+}

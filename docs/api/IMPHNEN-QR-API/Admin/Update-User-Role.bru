@@ -1,0 +1,86 @@
+meta {
+  name: Update User Role
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{baseUrl}}/api/v1/users/{{userId}}/role
+  body: json
+  auth: bearer
+}
+
+params:path {
+  userId: 
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "role": "admin"
+  }
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response has success structure", function() {
+    const body = res.getBody();
+    expect(body).to.have.property("success", true);
+    expect(body).to.have.property("message");
+  });
+  
+  test("Message confirms role update", function() {
+    const message = res.getBody().message;
+    expect(message).to.include("role updated");
+  });
+}
+
+docs {
+  # Update User Role (Admin Only)
+  
+  Update a user's role (e.g., promote to admin or demote to user).
+  
+  ## Authentication
+  Requires Bearer token in Authorization header.
+  
+  ## Authorization
+  Only users with 'admin' role can access this endpoint.
+  
+  ## Path Parameters
+  - `id` (string, required): UUID of the user to update
+  
+  ## Request Body
+  - `role` (string, required): New role for the user (e.g., "admin", "user")
+  
+  ## Success Response (200)
+  ```json
+  {
+    "success": true,
+    "message": "user role updated",
+    "data": null
+  }
+  ```
+  
+  ## Error Response (401)
+  - Missing or invalid access token
+  
+  ## Error Response (403)
+  - User does not have admin role
+  
+  ## Error Response (400)
+  - Invalid role value
+  - User not found
+  
+  ## Example Usage
+  Change userId variable to target user's UUID before sending the request.
+}

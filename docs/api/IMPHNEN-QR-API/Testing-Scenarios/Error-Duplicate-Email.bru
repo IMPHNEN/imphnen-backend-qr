@@ -1,0 +1,50 @@
+meta {
+  name: Error - Duplicate Email
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/v1/auth/register
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Duplicate User",
+    "email": "scenario.user@test.com",
+    "password": "Password123!"
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 409) {
+    console.log("✅ Correctly returned 409 for duplicate email");
+  }
+}
+
+tests {
+  test("Returns 409 for duplicate email", function() {
+    expect(res.getStatus()).to.equal(409);
+  });
+  
+  test("Response has error structure", function() {
+    const body = res.getBody();
+    expect(body.success).to.equal(false);
+    expect(body.message).to.be.a("string");
+  });
+}
+
+docs {
+  # Error Scenario: Duplicate Email
+  
+  Test that API correctly prevents duplicate email registration.
+  
+  **Prerequisites**: User with email "scenario.user@test.com" must exist
+  **Expected**: 409 Conflict
+}

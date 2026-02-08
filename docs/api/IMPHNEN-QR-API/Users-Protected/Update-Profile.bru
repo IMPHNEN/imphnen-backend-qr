@@ -1,0 +1,83 @@
+meta {
+  name: Update Profile
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{baseUrl}}/api/v1/users/me
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "name": "Updated Name"
+  }
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response has success structure", function() {
+    const body = res.getBody();
+    expect(body).to.have.property("success", true);
+    expect(body).to.have.property("message");
+    expect(body).to.have.property("data");
+  });
+  
+  test("Response contains updated user", function() {
+    const user = res.getBody().data;
+    expect(user).to.have.property("id");
+    expect(user).to.have.property("name");
+  });
+  
+  test("Name is updated", function() {
+    const user = res.getBody().data;
+    expect(user.name).to.be.a("string");
+  });
+}
+
+docs {
+  # Update User Profile
+  
+  Update the authenticated user's profile information.
+  
+  ## Authentication
+  Requires Bearer token in Authorization header.
+  
+  ## Request Body
+  - `name` (string, optional): New name for the user
+  
+  ## Success Response (200)
+  ```json
+  {
+    "success": true,
+    "message": "profile updated",
+    "data": {
+      "id": "uuid",
+      "email": "user@example.com",
+      "name": "Updated Name",
+      "role": "user",
+      "created_at": "timestamp",
+      "updated_at": "timestamp"
+    }
+  }
+  ```
+  
+  ## Error Response (401)
+  - Missing or invalid access token
+  
+  ## Error Response (400)
+  - Invalid request body
+}
