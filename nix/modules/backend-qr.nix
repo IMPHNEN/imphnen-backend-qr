@@ -20,7 +20,7 @@ let
       owner = "golang-migrate";
       repo = "migrate";
       rev = "v${version}";
-      hash = "sha256-bLo3kihkPpuU+gzWNFN/bxOLe6z+ILEHxkyZ9XB3eek=";
+      hash = "sha256-ZZeurnoFcObrK75zkIZvz9ycdDP9AM3uX6h/4bMWpGc=";
     };
 
     vendorHash = "sha256-Wu3if5gNAEuD4YwaZfjC+YQK2lPyb1FMuaoWRlKyJYo=";
