@@ -23,7 +23,7 @@ let
       hash = "sha256-ZZeurnoFcObrK75zkIZvz9ycdDP9AM3uX6h/4bMWpGc=";
     };
 
-    vendorHash = "sha256-Wu3if5gNAEuD4YwaZfjC+YQK2lPyb1FMuaoWRlKyJYo=";
+    vendorHash = "sha256-kFA/k2GrfCDsXKkHeE97BSa9BD5R7woEMA6aKZWWrOo=";
 
     subPackages = [ "cmd/migrate" ];
 
