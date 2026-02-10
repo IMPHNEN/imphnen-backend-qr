@@ -10,6 +10,30 @@
 
 let
   cfg = config.services.imphnen-backend-qr;
+
+  # Build a minimal go-migrate without problematic drivers
+  goMigrate = pkgs.buildGoModule rec {
+    pname = "migrate";
+    version = "4.18.1";
+
+    src = pkgs.fetchFromGitHub {
+      owner = "golang-migrate";
+      repo = "migrate";
+      rev = "v${version}";
+      hash = "sha256-bLo3kihkPpuU+gzWNFN/bxOLe6z+ILEHxkyZ9XB3eek=";
+    };
+
+    vendorHash = "sha256-Wu3if5gNAEuD4YwaZfjC+YQK2lPyb1FMuaoWRlKyJYo=";
+
+    subPackages = [ "cmd/migrate" ];
+
+    tags = [ "postgres" ];
+
+    meta = {
+      description = "Database migrations";
+      mainProgram = "migrate";
+    };
+  };
 in
 {
   options.services.imphnen-backend-qr = {
@@ -42,8 +66,8 @@ in
     database = {
       host = lib.mkOption {
         type = lib.types.str;
-        default = "localhost";
-        description = "PostgreSQL database host";
+        default = "/run/postgresql";
+        description = "PostgreSQL database host (use socket path for local)";
       };
 
       port = lib.mkOption {
@@ -89,6 +113,21 @@ in
           ensureDBOwnership = true;
         }
       ];
+      # Enable TCP connections with md5 auth
+      enableTCPIP = true;
+      authentication = lib.mkForce ''
+        # Local connections
+        local all all trust
+        # IPv4 local connections
+        host all all 127.0.0.1/32 md5
+        # IPv6 local connections
+        host all all ::1/128 md5
+      '';
+      # Set password for the user after creation
+      initialScript = pkgs.writeText "init-sql" ''
+        ALTER USER ${cfg.database.user} WITH PASSWORD '${cfg.database.user}';
+        GRANT ALL PRIVILEGES ON DATABASE ${cfg.database.name} TO ${cfg.database.user};
+      '';
     };
 
     # Migration service (runs before main service)
@@ -102,18 +141,13 @@ in
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
-        ExecStart = "${pkgs.go-migrate}/bin/migrate -path ${cfg.package}/share/imphnen-backend-qr/migrations -database \"postgres://${cfg.database.user}@${cfg.database.host}:${toString cfg.database.port}/${cfg.database.name}?sslmode=disable\" up";
-
-        # Run as postgres user for local database
-        User = lib.mkIf cfg.database.createLocally "postgres";
+        ExecStart = "${goMigrate}/bin/migrate -path ${cfg.package}/share/imphnen-backend-qr/migrations -database \"postgres://${cfg.database.user}:${cfg.database.user}@127.0.0.1:${toString cfg.database.port}/${cfg.database.name}?sslmode=disable\" up";
 
         # Hardening
         NoNewPrivileges = true;
         ProtectSystem = "strict";
         ProtectHome = true;
         PrivateTmp = true;
-      } // lib.optionalAttrs (cfg.environmentFile != null) {
-        EnvironmentFile = cfg.environmentFile;
       };
     };
 
@@ -129,7 +163,6 @@ in
 
       environment = {
         PORT = toString cfg.port;
-        # Database URL will be set via environmentFile for security
       };
 
       serviceConfig = {
