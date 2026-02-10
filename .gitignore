@@ -1,2 +1,7 @@
 .env
 tmp/
+
+# Nix
+result
+.direnv/
+.dev/
